@@ -9,33 +9,52 @@ const App = () => {
     const [editing, setEditing] = useState(false);
     const [currentApplication, setCurrentApplication] = useState(null);
 
-    //useEffect(() => {
-        // Replace with your actual API call or mock data path
-        //const fetchApplications = async () => {
-            //try {
-               // const res = await axios.get('./mockData');
-               // setApplications(res.data);
-          //  } catch (err) {
-              //  console.error(err);
-          //  }
-       // };
-        //fetchApplications();
-    //}, []);
+    useEffect(() => {
+        // Calling Api
+        const fetchApplications = async () => {
+            try {
+                const res = await axios.get('http://localhost:4000/application');
+               setApplications(res.data);
+           } catch (err) {
+               console.error(err);
+            }
+        };
+        fetchApplications();
+    }, []);
 
-    const addApplication = (newApplication) => {
-        setApplications([...applications, { _id: Date.now().toString(), ...newApplication }]);
+    const addApplication = async(newApplication) => {
+        try{
+            const res = await axios.post('http://localhost:4000/application',newApplication)
+            setApplications([...applications, res.data]);   
+        }
+        catch(err){
+            console.error('Error creating application:', err);
+        }
+    
     };
 
-    const updateApplication = (id, updatedApplication) => {
-        setApplications(
-            applications.map(app => (app._id === id ? updatedApplication : app))
-        );
-    };
+    const updateApplication = async(id, updatedApplication) => {
+        try{   
+            const res = await axios.put(`http://localhost:4000/application/${id}`, updatedApplication);
+            setApplications(applications.map(app => (app._id === id ? updatedApplication : app)));
+        }
+        catch(err){   
+            console.error('Error updating application:', err);
+        }
+        };
 
-    const deleteApplication = (id) => {
+
+
+    const deleteApplication =async (id) => {
+       try{
+        await axios.delete(`http://localhost:4000/application/${id}`)
         setApplications(applications.filter(app => app._id !== id));
         setEditing(false);
         setCurrentApplication(null)
+       }
+       catch(err){
+        console.error("error deleting application", err)
+       }
     };
 
     const startEditing = (application) => {
